@@ -1,5 +1,6 @@
 <template>
-  <div id="app">
+  <div class="app">
+  <div class="addProduct">
     <h1>Product Management</h1>
     
     <h2>Add Product</h2>
@@ -9,6 +10,7 @@
       Description: <textarea v-model="newProduct.description"></textarea>
       <button type="submit">Add Product</button>
     </form>
+    </div>
 
   <!-- List Products -->
   <h2>Products</h2>
@@ -17,19 +19,19 @@
         <h3>{{ product.name }}</h3>
         <p>Price: ${{ product.price }}</p>
         <p>{{ product.description }}</p>
-        <button>Add To Cart</button>
+        <button @click="addToCart(product)">Add To Cart</button>
       </div>
     </div>
-
-    <div class="input-container">
-      <input v-model="discountCode" placeholder="Enter Discount Code">
-      <button @click="applyDiscount">Apply Discount</button>
-    </div>
+    <CartOne v-if="cartProducts.length > 0" :items="cartProducts" />
   </div>
 </template>
 
 <script>
+import CartOne from './components/Cart'
 export default {
+  components: { 
+    CartOne
+  },
   data() {
     return {
       newProduct: {
@@ -38,8 +40,10 @@ export default {
         description: ''
       },
       discountCode: "",
-      products: []
+      products: [],
+      cartProducts: [],
     }
+
   },
  
   methods: {
@@ -91,26 +95,11 @@ export default {
         });
     },
 
-    applyDiscount() {
-      console.log(this.discountCode);
-
-      fetch('http://localhost/back-end-discount/applyDiscount.php', { 
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ code: this.discountCode }),
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log(data);
-      });
-    },
+    addToCart(product){
+      console.log(product)
+      this.cartProducts.push(product)
+     
+    }
   },
 
   mounted() {
@@ -121,11 +110,15 @@ export default {
 </script>
 
 <style>
-#app {
+.app{
+  background: lightgray;
+
+}
+.addProduct {
   font-family: Arial, sans-serif;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
+  max-width: 500px;
+  margin: 30px;
+  padding: 0px;
 }
 
 h1 {
@@ -170,20 +163,37 @@ button:hover {
 
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjust the column width as needed */
+  grid-template-columns: repeat(3, 1fr); /* Exactly 3 columns */
   grid-gap: 20px; /* Adjust the gap between products */
+  margin :30px;
 }
 
+
 .product-card {
-  border: 1px solid #ccc;
+  border: 1px solid #e6e6e6;  /* Slightly off-white for subtlety */
   border-radius: 5px;
   padding: 10px;
+  background-color: #ffffff; /* A clean white background */
+  
+  /* Box Shadow */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.12);
+  
+  /* Transition for hover effect */
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  
+  /* Optional: Slight scale on hover for interactive feeling */
+&:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15), 0 2px 5px rgba(0, 0, 0, 0.1);
+    transform: scale(1.02);
+  }
 }
+
 .product-container {
   border: 1px solid #ccc;
   border-radius: 5px;
   padding: 10px;
   margin-bottom: 20px;
+
 }
 
 .product-container h3 {
